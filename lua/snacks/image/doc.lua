@@ -52,34 +52,13 @@ M.transforms = {
     }, { indent = true, prefix = "$" })
   end,
   latex = function(img, ctx)
-    if not (img.content and img.ext == "math.tex") then
+    if not img.content then
       return
     end
-    local fg = Snacks.util.color("SnacksImageMath") or "#000000"
-    local content = vim.trim(img.content or "")
-    content = content:gsub("^%$+`?", ""):gsub("`?%$+$", "")
-    content = content:gsub("^\\[%[%(]", ""):gsub("\\[%]%)]$", "")
-    if not content:find("^\\begin") then
-      content = ("\\[%s\\]"):format(content)
-    end
-    local packages = { "xcolor" }
-    vim.list_extend(packages, Snacks.image.config.math.latex.packages)
-    vim.list_extend(packages, M.get_packages(ctx.buf))
-    table.sort(packages)
-    local seen = {} ---@type table<string, boolean>
-    packages = vim.tbl_filter(function(p)
-      if seen[p] then
-        return false
-      end
-      seen[p] = true
-      return true
-    end, packages)
-    img.content = Snacks.picker.util.tpl(Snacks.image.config.math.latex.tpl, {
-      font_size = Snacks.image.config.math.latex.font_size or "large",
-      packages = table.concat(packages, ", "),
+    img.content = Snacks.picker.util.tpl(Snacks.image.config.math.typst.tpl, {
+      color = Snacks.util.color("SnacksImageMath") or "#000000",
       header = M.get_header(ctx.buf),
-      color = fg:upper():sub(2),
-      content = content,
+      content = img.content,
     }, { indent = true, prefix = "$" })
   end,
 }

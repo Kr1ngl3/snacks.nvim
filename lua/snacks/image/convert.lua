@@ -74,34 +74,12 @@ local commands = {
   },
   tex = {
     ft = "pdf",
-    file = function(convert, ctx)
-      ctx.pdf = Snacks.image.config.cache .. "/" .. vim.fs.basename(ctx.src):gsub("%.tex$", ".pdf")
-      return convert:tmpfile("pdf")
-    end,
     cmd = {
       {
-        cwd = "{dirname}",
-        cmd = "tectonic",
-        args = { "-Z", "continue-on-errors", "--outdir", "{cache}", "{src}" },
-      },
-      {
-        cmd = "pdflatex",
-        cwd = "{dirname}",
-        args = { "-output-directory={cache}", "-interaction=nonstopmode", "{src}" },
+        cmd = "typst",
+        args = { "compile", "--format", "pdf", "--pages", 1, "{src}", "{file}" },
       },
     },
-    on_done = function(step)
-      local pdf = assert(step.meta.pdf, "No pdf file") --[[@as string]]
-      if uv.fs_stat(pdf) then
-        uv.fs_rename(pdf, step.file)
-      end
-    end,
-    on_error = function(step)
-      local pdf = assert(step.meta.pdf, "No pdf file") --[[@as string]]
-      if step.meta.pdf and vim.fn.getfsize(pdf) > 0 then
-        return true
-      end
-    end,
   },
   mmd = {
     cmd = {
